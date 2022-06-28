@@ -2,12 +2,12 @@
 //  LeaderBoardTableViewController.swift
 //  High_Low_Game
 //
-//  Created by JOJO on 5/15/21.
-//  Copyright © 2021 Jayu. All rights reserved.
+//  Created by JOJO on 5/15/22.
+//  Copyright © 2022 Jayu. All rights reserved.
 //
 import Foundation
 import UIKit
-import Firebase
+import Firebase //Firebase is a 3rd party database
 
 
 class LeaderBoardTableViewController: UITableViewController{
@@ -18,76 +18,70 @@ class LeaderBoardTableViewController: UITableViewController{
     var userNameBool: Bool = false
     var scoresArrayTableView: Array = [Int]()
     var userNamesArrayTableView: Array = [String]()
-    var winnerArray = [[String: Int]]()
-    var winnerDict = [String: Int]()
     let database = Database.database().reference()
     var userName = String()
     var scores = Int()
+    @objc func reload(sender:AnyObject)
+    {
+        self.tableView.reloadData()
+        self.refreshControl?.endRefreshing()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.refreshControl?.addTarget(self, action: #selector(self.reload), for: UIControl.Event.valueChanged)
         self.tableView.delegate = self
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-    database.child(UserDefaults.standard.string(forKey: "userID611")!).setValue(["userName": UserDefaults.standard.string(forKey: "name611")!])
-        if UserDefaults.standard.string(forKey: "name611") == nil{
+        if UserDefaults.standard.string(forKey: "name61111") == nil{
             collectUserName()
             userNameBool = true
         }else{
-            uploadHighScoreAndUserName(highscore: UserDefaults.standard.integer(forKey: "highScore001111"), userName: UserDefaults.standard.string(forKey: "name611")!)
+            database.child(UserDefaults.standard.string(forKey: "userID61111") ?? "").setValue(["userName": UserDefaults.standard.string(forKey: "name61111")!])
+            uploadHighScoreAndUserName(highscore: UserDefaults.standard.integer(forKey: "highScore00111111"), userName: UserDefaults.standard.string(forKey: "name61111")!)
             sortWinners()
             self.tableView.reloadData()
         }
     }
     func uploadHighScoreAndUserName(highscore: Int, userName: String){
         let database = Database.database().reference()
-        if (UserDefaults.standard.string(forKey: "name611") != nil) && UserDefaults.standard.string(forKey: "userID611") == nil{
-            database.child(UserDefaults.standard.string(forKey: "userID611")!).setValue(["score": highscore])
-            database.child(UserDefaults.standard.string(forKey: "userID611")!).setValue(["userName": userName])
+        if (UserDefaults.standard.string(forKey: "name61111") != nil) && UserDefaults.standard.string(forKey: "userID61111") == nil{
+            database.child(UserDefaults.standard.string(forKey: "userID61111")!).setValue(["score": highscore])
+            database.child(UserDefaults.standard.string(forKey: "userID61111")!).setValue(["userName": userName])
         }
-        database.child(UserDefaults.standard.string(forKey: "userID611")!).updateChildValues(["score": highscore])
+        database.child(UserDefaults.standard.string(forKey: "userID61111")!).updateChildValues(["score": highscore])
     }
     func collectUserName(){
         
-        var nameField: UITextField?
-        let alertController = UIAlertController(title: "Add User Name", message: nil, preferredStyle: .alert)
-            alertController.addTextField { (textField) in
-                nameField = textField
-                nameField?.text = ""
+        var userNameField: UITextField?
+        let nameCollecter = UIAlertController(title: "Add User Name", message: nil, preferredStyle: .alert)
+            nameCollecter.addTextField { (textField) in
+                userNameField = textField
+                userNameField?.text = ""
             }
-        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alertController] (_) in
-            nameField = alertController?.textFields![0]
+        nameCollecter.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak nameCollecter] (_) in
+            userNameField = nameCollecter?.textFields![0]
             let def = UserDefaults.standard
-            let name = def.string(forKey: "name611")
-            def.setValue((nameField?.text!)!, forKey: "name611")
+            def.string(forKey: "name61111")
+            def.setValue((userNameField?.text!)!, forKey: "name61111")
             def.synchronize()
-            self.uploadHighScoreAndUserName(highscore: UserDefaults.standard.integer(forKey: "highScore001111"), userName: UserDefaults.standard.string(forKey: "name611")!)
+            self.uploadHighScoreAndUserName(highscore: UserDefaults.standard.integer(forKey: "highScore00111111"), userName: UserDefaults.standard.string(forKey: "name61111")!)
             }))
-        self.present(alertController, animated: true, completion: nil)
+        self.present(nameCollecter, animated: true, completion: nil)
         self.tableView.reloadData()
-        
         }
     func sortWinners(){
-        var newArrayThing: [user] = []
+        var structArray: [user] = []
         Database.database().reference().observe(.value, with: { (snapshot) in
-
             if let snapshots = snapshot.children.allObjects as? [DataSnapshot]{
                 for snap in snapshots {
                     self.userName = snap.childSnapshot(forPath: "userName").value! as? String ?? ""
                     self.scores = snap.childSnapshot(forPath: "score").value! as? Int ?? 0
-                    newArrayThing.append(user.init(score: self.scores, userName: self.userName))
-                    newArrayThing.sort{ $0.score > $1.score }
+                    structArray.append(user.init(score: self.scores, userName: self.userName))
+                    structArray.sort{ $0.score > $1.score }
                 }
-                    for winners in newArrayThing{
-                        self.scoresArrayTableView.append(winners.score)
-                        self.userNamesArrayTableView.append(winners.userName)
-//                        self.scoresArrayTableView = self.scoresArrayTableView.filter { $0 != 0}
-                       // if let key = winners.first(where: { $0.value == winners[self.userName] ?? 0 })?.key{
-//self.userNamesArrayTableView.append(key)
-
-                    }
-                
-                print(self.userNamesArrayTableView)
-                print(self.scoresArrayTableView)
+                    for winners in structArray{
+                            self.scoresArrayTableView.append(winners.score)
+                            self.userNamesArrayTableView.append(winners.userName)
+                        }
+            
                 self.tableView.reloadData()
             }
     })
@@ -115,51 +109,6 @@ class LeaderBoardTableViewController: UITableViewController{
         return cell
     }
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 

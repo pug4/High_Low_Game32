@@ -2,14 +2,13 @@
 //  SceneDelegate.swift
 //  High_Low_Game
 //
-//  Created by JOJO on 4/6/21.
-//  Copyright © 2021 Jayu. All rights reserved.
+//  Created by JOJO on 5/15/22.
+//  Copyright © 2022 Jayu. All rights reserved.
 //
 
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
     var window: UIWindow?
 
 

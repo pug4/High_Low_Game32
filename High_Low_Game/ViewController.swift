@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  High_Low_Game
 //
-//  Created by JOJO on 5/15/21.
-//  Copyright © 2021 Jayu. All rights reserved.
+//  Created by JOJO on 5/15/22.
+//  Copyright © 2022 Jayu. All rights reserved.
 //
 
 import UIKit
@@ -12,7 +12,7 @@ import Firebase
 
 class ViewController: UIViewController {
     var scoreLabelValue = 100
-    var highScoreSaved: Int{ UserDefaults.standard.integer(forKey: "highScore001111")
+    var highScoreSaved: Int{ UserDefaults.standard.integer(forKey: "highScore00111111")
     }
     @IBOutlet weak var highScore: UILabel!
     @IBOutlet weak var popupView: UIView!
@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         buttonFunction(buttonType: false)
     }
     func buttonFunction(buttonType: Bool){
-        var bool = Bool.random()
+        let bool = Bool.random()
         if bool == buttonType{
             keepGoing()
             }
@@ -40,13 +40,12 @@ class ViewController: UIViewController {
     }
     func uploadHighScore(highscore: Int){
         let database = Database.database().reference()
-        if UserDefaults.standard.string(forKey: "userID611") == nil{
+        if UserDefaults.standard.string(forKey: "userID61111") == nil{
             let userID = database.childByAutoId()
-            UserDefaults.standard.setValue(userID.key!, forKey: "userID611")
-            database.child(UserDefaults.standard.string(forKey: "userID611")!).setValue(["score": highscore])
-            database.child(UserDefaults.standard.string(forKey: "userID611")!).setValue(["score": highscore])
+            UserDefaults.standard.setValue(userID.key!, forKey: "userID61111")
+            database.child(UserDefaults.standard.string(forKey: "userID61111")!).setValue(["score": highscore])
         }
-        database.child(UserDefaults.standard.string(forKey: "userID611")!).updateChildValues(["score": highscore])
+        database.child(UserDefaults.standard.string(forKey: "userID61111")!).updateChildValues(["score": highscore])
     }
    func keepGoing(){
         winOrLose.text = String(scoreLabelValue)
@@ -54,7 +53,7 @@ class ViewController: UIViewController {
         winOrLose.backgroundColor = .green
         if self.scoreLabelValue > self.highScoreSaved{
             let defualts: UserDefaults = UserDefaults.standard
-            defualts.setValue(self.scoreLabelValue-100, forKey: "highScore001111")
+            defualts.setValue(self.scoreLabelValue-100, forKey: "highScore00111111")
             defualts.synchronize()
             self.highScore.text = String(self.highScoreSaved)
             uploadHighScore(highscore: scoreLabelValue-100)
@@ -62,14 +61,22 @@ class ViewController: UIViewController {
     
     }
     func lose(loseBool: Bool){
-        winOrLose.text = "The Bool Game: Is the variable True or False?"
+        var text = ""
+        winOrLose.text = "The High_Low Game: Is the variable High or Low?"
         scoreLabelValue = 100
         winOrLose.backgroundColor = .red
         popupView.center = view.center
         popupView.alpha = 1
         popupView.transform = CGAffineTransform(scaleX: 0.8, y: 1.2)
         self.view.addSubview(popupView)
-        loseLabel.text = "You lose! The correct Bool was \(loseBool)"
+        if loseBool{
+            text = "High"
+        }
+        else{
+            text = "Low"
+        }
+        
+        loseLabel.text = "You lose! The correct answer was \(text)!"
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: [],  animations: {
           self.popupView.transform = .identity
         })
